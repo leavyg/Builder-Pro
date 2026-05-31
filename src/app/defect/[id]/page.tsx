@@ -6,8 +6,7 @@ import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
 import { formatRef } from "@/lib/format";
 import { MapPinIcon } from "@/components/icons";
-import ConfirmButton from "@/components/ConfirmButton";
-import { approveDefect, rejectDefect } from "./actions";
+import ReviewActions from "./ReviewActions";
 
 const EVENT_LABEL: Record<string, string> = {
   created: "Defect raised",
@@ -124,23 +123,7 @@ export default async function DefectDetailPage({
         )}
 
         {defect.status === "fixed_pending" && (
-          <div className="flex gap-3">
-            <form action={approveDefect} className="flex-1">
-              <input type="hidden" name="id" value={defect.id} />
-              <button className="w-full rounded-xl bg-green-600 py-3 font-semibold text-white active:bg-green-700">
-                Approve
-              </button>
-            </form>
-            <form action={rejectDefect} className="flex-1">
-              <input type="hidden" name="id" value={defect.id} />
-              <ConfirmButton
-                message="Send this back to the contractor as not done? Their link will reopen for another attempt."
-                className="w-full rounded-xl bg-white py-3 font-semibold text-red-600 ring-1 ring-red-300 active:bg-red-50"
-              >
-                Send back
-              </ConfirmButton>
-            </form>
-          </div>
+          <ReviewActions defectId={defect.id} />
         )}
 
         {/* Audit trail */}

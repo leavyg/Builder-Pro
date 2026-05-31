@@ -91,6 +91,7 @@ export async function emailSentBack(o: {
   contractorName: string;
   ref: string;
   description: string;
+  reason?: string;
   link: string;
 }) {
   await send(
@@ -98,7 +99,11 @@ export async function emailSentBack(o: {
     `${o.ref} sent back — needs another look`,
     shell(
       `Hi ${o.contractorName}, a job needs another look`,
-      `<p><strong>${o.ref}</strong> — ${o.description} — wasn't approved and has been reopened.</p><p>Please take another look and resubmit when it's done.</p>`,
+      `<p><strong>${o.ref}</strong> — ${o.description} — wasn't approved and has been reopened.</p>${
+        o.reason
+          ? `<p style="background:#fef2f2;border-radius:10px;padding:12px;color:#991b1b"><strong>What needs redoing:</strong> ${o.reason}</p>`
+          : ""
+      }<p>Please take another look and resubmit when it's done.</p>`,
       { label: "View the job", href: o.link },
     ),
   );

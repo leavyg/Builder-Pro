@@ -63,6 +63,7 @@ export async function rejectDefect(formData: FormData) {
         contractorName: c.name,
         ref: formatRef(defect!.ref),
         description: defect!.description,
+        reason: note || undefined,
         link: `${baseUrl}/c/${c.response_token}`,
       });
     });
