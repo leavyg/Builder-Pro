@@ -6,6 +6,7 @@ import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
 import { PlusIcon } from "@/components/icons";
 import LogoutButton from "@/components/LogoutButton";
+import RefreshControl from "@/components/RefreshControl";
 import DashboardList, { type DefectRow } from "./DashboardList";
 
 export default async function Home() {
@@ -47,7 +48,10 @@ export default async function Home() {
           <h1 className="text-lg font-bold tracking-tight">{APP_NAME}</h1>
           <p className="text-sm text-slate-500">{site?.name ?? "No site yet"}</p>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-1">
+          <RefreshControl />
+          <LogoutButton />
+        </div>
       </header>
 
       <div className="px-4 py-5">
