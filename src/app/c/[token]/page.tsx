@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
-import { STATUS, STATUS_WEIGHT, type Status } from "@/lib/status";
-import { formatRef } from "@/lib/format";
+import { STATUS_WEIGHT, type Status } from "@/lib/status";
 import { APP_NAME } from "@/lib/constants";
-import FixSnag from "./FixSnag";
+import RefreshControl from "@/components/RefreshControl";
+import ContractorList, { type SnagRow } from "./ContractorList";
 
 // PUBLIC page (no login). Shows ONLY the snags belonging to the contractor whose
-// secret token is in the URL.
+// secret token is in the URL — now a compact list like the manager's dashboard.
 export default async function ContractorPage({
   params,
 }: {
@@ -26,87 +26,52 @@ export default async function ContractorPage({
 
   const { data: defects } = await admin
     .from("defects")
-    .select(
-      "id,ref,description,status,problem_photo_url,fixed_photo_url,created_at,zones(label)",
-    )
+    .select("id,ref,description,status,problem_photo_url,created_at,zones(label)")
     .eq("contractor_id", contractor.id);
 
   const photoMap = await signPhotos(
-    (defects ?? []).flatMap((d) =>
-      [d.problem_photo_url, d.fixed_photo_url].filter(Boolean) as string[],
-    ),
+    (defects ?? []).map((d) => d.problem_photo_url),
   );
 
-  const sorted = (defects ?? []).slice().sort((a, b) => {
-    const w =
-      STATUS_WEIGHT[a.status as Status] - STATUS_WEIGHT[b.status as Status];
-    if (w !== 0) return w;
-    return b.created_at.localeCompare(a.created_at);
-  });
+  const rows: SnagRow[] = (defects ?? [])
+    .slice()
+    .sort((a, b) => {
+      const w =
+        STATUS_WEIGHT[a.status as Status] - STATUS_WEIGHT[b.status as Status];
+      if (w !== 0) return w;
+      return b.created_at.localeCompare(a.created_at);
+    })
+    .map((d) => ({
+      id: d.id,
+      ref: d.ref,
+      description: d.description,
+      status: d.status as Status,
+      thumb: photoMap[d.problem_photo_url],
+      zone: one<{ label: string }>(d.zones)?.label,
+    }));
 
-  const openCount = sorted.filter((d) => d.status === "open").length;
+  const todo = rows.filter((r) => r.status === "open").length;
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-slate-50 px-4 py-6 text-slate-900">
-      <p className="mb-1 text-sm font-semibold text-slate-400">{APP_NAME}</p>
-      <h1 className="mb-1 text-xl font-bold">Hi {contractor.name},</h1>
-      <p className="mb-5 text-slate-500">
-        {openCount > 0
-          ? `You have ${openCount} job${openCount > 1 ? "s" : ""} to look at.`
-          : "You're all caught up — nothing outstanding."}
-      </p>
+    <main className="min-h-dvh bg-slate-50 pb-10 text-slate-900">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            {APP_NAME}
+          </p>
+          <h1 className="text-lg font-bold tracking-tight">{contractor.name}</h1>
+          <p className="text-sm text-slate-500">
+            {todo > 0
+              ? `${todo} job${todo > 1 ? "s" : ""} to do`
+              : "Nothing outstanding"}
+          </p>
+        </div>
+        <RefreshControl />
+      </header>
 
-      <div className="space-y-3">
-        {sorted.length === 0 && (
-          <p className="py-10 text-center text-slate-400">No jobs assigned yet.</p>
-        )}
-
-        {sorted.map((d) => {
-          const s = STATUS[d.status as Status];
-          const zone = one<{ label: string }>(d.zones)?.label;
-          return (
-            <div key={d.id} className="rounded-2xl bg-white p-4 shadow-sm">
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-medium">
-                    <span className="text-slate-400">{formatRef(d.ref)}</span>{" "}
-                    {d.description}
-                  </p>
-                  {zone && <p className="text-sm text-slate-500">{zone}</p>}
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${s.badge}`}
-                >
-                  {s.label}
-                </span>
-              </div>
-
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photoMap[d.problem_photo_url]}
-                alt="The problem"
-                className="w-full rounded-xl object-cover"
-              />
-
-              {d.status === "open" && (
-                <FixSnag contractorToken={token} defectId={d.id} />
-              )}
-
-              {d.status === "fixed_pending" && (
-                <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-center text-sm font-medium text-amber-800">
-                  Sent for approval
-                </p>
-              )}
-
-              {d.status === "approved" && (
-                <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-center text-sm font-medium text-green-800">
-                  Approved — signed off
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <section className="px-4 pt-4">
+        <ContractorList rows={rows} token={token} />
+      </section>
     </main>
   );
 }
