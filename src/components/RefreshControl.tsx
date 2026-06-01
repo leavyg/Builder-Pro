@@ -35,7 +35,7 @@ export default function RefreshControl({
     <button
       onClick={() => startTransition(() => router.refresh())}
       aria-label="Refresh"
-      className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors active:bg-slate-100"
+      className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors active:bg-white/10"
     >
       <RefreshIcon className={`text-lg ${isPending ? "animate-spin" : ""}`} />
     </button>

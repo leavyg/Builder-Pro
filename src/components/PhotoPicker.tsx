@@ -72,7 +72,7 @@ export default function PhotoPicker({
           <button
             type="button"
             onClick={() => cameraInput.current?.click()}
-            className="flex aspect-square w-full flex-col items-center justify-center rounded-2xl bg-slate-900 text-white transition-colors active:bg-slate-700"
+            className="flex aspect-square w-full flex-col items-center justify-center rounded-2xl bg-navy text-white transition-colors active:bg-navy-light"
           >
             <CameraIcon className="text-5xl" />
             <span className="mt-2 text-lg font-semibold">Take photo</span>
@@ -80,7 +80,7 @@ export default function PhotoPicker({
           <button
             type="button"
             onClick={() => galleryInput.current?.click()}
-            className="mt-2 w-full text-center text-sm font-medium text-blue-600 active:text-blue-800"
+            className="mt-2 w-full text-center text-sm font-medium text-navy active:text-navy"
           >
             or add from gallery
           </button>
@@ -116,12 +116,12 @@ export default function PhotoPicker({
               </button>
             )}
           </div>
-          <div className="mt-2 flex gap-4 text-sm font-medium text-blue-600">
+          <div className="mt-2 flex gap-4 text-sm font-medium text-navy">
             <button
               type="button"
               disabled={full}
               onClick={() => cameraInput.current?.click()}
-              className="active:text-blue-800 disabled:text-slate-300"
+              className="active:text-navy disabled:text-slate-300"
             >
               Take another
             </button>
@@ -129,7 +129,7 @@ export default function PhotoPicker({
               type="button"
               disabled={full}
               onClick={() => galleryInput.current?.click()}
-              className="active:text-blue-800 disabled:text-slate-300"
+              className="active:text-navy disabled:text-slate-300"
             >
               Add from gallery
             </button>

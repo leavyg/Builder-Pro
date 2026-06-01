@@ -23,7 +23,7 @@ export default function CopyLinkButton({ token }: { token: string }) {
   return (
     <button
       onClick={copy}
-      className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 active:text-blue-800"
+      className="inline-flex items-center gap-1 text-sm font-medium text-navy active:text-navy"
     >
       {copied ? (
         <>

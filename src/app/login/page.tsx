@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { APP_NAME } from "@/lib/constants";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,8 +32,8 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-dvh flex-col justify-center bg-slate-50 px-6 text-slate-900">
       <div className="mx-auto w-full max-w-sm">
-        <h1 className="text-3xl font-bold tracking-tight">{APP_NAME}</h1>
-        <p className="mb-8 mt-1 text-slate-500">Site defect management</p>
+        <Logo className="text-navy text-3xl" />
+        <p className="mb-8 mt-2 text-slate-500">Site defect management</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -46,7 +46,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-blue-600"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-navy"
             />
           </div>
           <div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-blue-600"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-navy"
             />
           </div>
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-blue-600 py-3 text-base font-semibold text-white transition-colors active:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-navy py-3 text-base font-semibold text-white transition-colors active:bg-navy-light disabled:opacity-50"
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>

@@ -37,11 +37,11 @@ export default async function TerraceAddressesPage({
             name="label"
             required
             placeholder="6 Skylark Park Close"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-blue-600"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-navy"
           />
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition-colors active:bg-blue-700"
+            className="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors active:bg-navy-light"
           >
             Add house
           </button>

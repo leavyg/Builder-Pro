@@ -99,7 +99,7 @@ export default async function DefectDetailPage({
           {zone && <p>Location: {zone}</p>}
           {defect.gps_lat && defect.gps_lng && (
             <a
-              className="inline-flex items-center gap-1 font-medium text-blue-600"
+              className="inline-flex items-center gap-1 font-medium text-navy"
               href={`https://maps.google.com/?q=${defect.gps_lat},${defect.gps_lng}`}
               target="_blank"
               rel="noreferrer"

@@ -19,7 +19,7 @@ export default async function EditContractorPage({
   if (!c) notFound();
 
   const input =
-    "w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-blue-600";
+    "w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none transition-colors focus:border-navy";
 
   return (
     <main className="min-h-dvh bg-slate-50 text-slate-900">
@@ -70,7 +70,7 @@ export default async function EditContractorPage({
           </div>
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition-colors active:bg-blue-700"
+            className="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors active:bg-navy-light"
           >
             Save changes
           </button>

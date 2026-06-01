@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+// Full-width "Sign out" row (used on the More screen).
 export default function LogoutButton() {
   const router = useRouter();
 
@@ -15,9 +16,10 @@ export default function LogoutButton() {
   return (
     <button
       onClick={logout}
-      className="text-sm font-medium text-slate-500 underline-offset-2 hover:underline"
+      className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-4 font-medium text-red-600 shadow-sm transition-colors active:bg-slate-50"
     >
       Sign out
+      <span className="text-slate-300">›</span>
     </button>
   );
 }

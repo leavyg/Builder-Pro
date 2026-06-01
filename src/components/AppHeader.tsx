@@ -9,17 +9,15 @@ export default function AppHeader({
   back?: string;
 }) {
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-10 flex items-center gap-2 bg-navy px-4 py-3 text-white">
       <Link
         href={back}
         aria-label="Back"
-        className="-ml-1 flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition-colors active:bg-slate-100"
+        className="-ml-1 flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors active:bg-white/10"
       >
         <ChevronLeftIcon className="text-xl" />
       </Link>
-      <h1 className="text-lg font-semibold tracking-tight text-slate-900">
-        {title}
-      </h1>
+      <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
     </header>
   );
 }

@@ -72,6 +72,34 @@ export function RefreshIcon({ className }: IconProps) {
   );
 }
 
+export function HardHatIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} width="1em" height="1em">
+      <path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z" />
+      <path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5" />
+      <path d="M4 15v-3a6 6 0 0 1 6-6" />
+      <path d="M14 6a6 6 0 0 1 6 6v3" />
+    </svg>
+  );
+}
+
+export function HomeIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} width="1em" height="1em">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <path d="M9 22V12h6v10" />
+    </svg>
+  );
+}
+
+export function MenuIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} width="1em" height="1em">
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
 export function ClipboardIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} width="1em" height="1em">

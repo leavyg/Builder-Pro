@@ -111,7 +111,7 @@ export default function NewDefectForm({
               onClick={() => setContractorId(c.id)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 contractorId === c.id
-                  ? "bg-blue-600 text-white"
+                  ? "bg-navy text-white"
                   : "bg-white text-slate-700 ring-1 ring-slate-300"
               }`}
             >
@@ -129,7 +129,7 @@ export default function NewDefectForm({
           {/* Terrace */}
           <div className="relative">
             {selectedTerrace ? (
-              <div className="flex items-center justify-between rounded-xl border border-blue-600 px-3 py-3">
+              <div className="flex items-center justify-between rounded-xl border border-navy px-3 py-3">
                 <span className="font-medium">{selectedTerrace.name}</span>
                 <button
                   type="button"
@@ -146,7 +146,7 @@ export default function NewDefectForm({
                   value={terraceQuery}
                   onChange={(e) => setTerraceQuery(e.target.value)}
                   placeholder="Terrace (e.g. T41)"
-                  className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-blue-600"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-navy"
                 />
                 {matches.length > 0 && (
                   <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-slate-200 bg-white shadow-lg">
@@ -172,7 +172,7 @@ export default function NewDefectForm({
             value={addressId}
             onChange={(e) => setAddressId(e.target.value)}
             disabled={!selectedTerrace}
-            className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-blue-600 disabled:bg-slate-100 disabled:text-slate-400"
+            className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-navy disabled:bg-slate-100 disabled:text-slate-400"
           >
             <option value="">
               {selectedTerrace ? "Choose house…" : "Pick terrace first"}
@@ -194,7 +194,7 @@ export default function NewDefectForm({
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Tap the mic on your keyboard and say what’s wrong…"
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-navy"
         />
       </div>
 
@@ -206,7 +206,7 @@ export default function NewDefectForm({
           type="button"
           disabled={!canSend}
           onClick={handleSend}
-          className="w-full rounded-xl bg-blue-600 py-4 text-lg font-bold text-white transition-colors active:bg-blue-700 disabled:bg-slate-300"
+          className="w-full rounded-xl bg-navy py-4 text-lg font-bold text-white transition-colors active:bg-navy-light disabled:bg-slate-300"
         >
           {submitting ? "Sending…" : "Send to contractor"}
         </button>

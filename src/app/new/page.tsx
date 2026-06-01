@@ -9,7 +9,7 @@ function Setup({ message, href, cta }: { message: string; href: string; cta: str
       <p className="text-slate-500">{message}</p>
       <Link
         href={href}
-        className="mt-4 inline-block rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white"
+        className="mt-4 inline-block rounded-xl bg-navy px-5 py-3 font-semibold text-white"
       >
         {cta}
       </Link>

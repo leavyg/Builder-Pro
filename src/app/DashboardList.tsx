@@ -53,7 +53,7 @@ export default function DashboardList({ defects }: { defects: DefectRow[] }) {
               onClick={() => setStatus(f.key)}
               className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-navy text-white shadow-sm"
                   : "bg-white text-slate-600 ring-1 ring-slate-200"
               }`}
             >
@@ -76,7 +76,7 @@ export default function DashboardList({ defects }: { defects: DefectRow[] }) {
         <select
           value={contractor}
           onChange={(e) => setContractor(e.target.value)}
-          className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600"
+          className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-navy"
         >
           <option value="all">All contractors</option>
           {contractors.map((c) => (

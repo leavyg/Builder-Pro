@@ -114,7 +114,7 @@ export default function ContractorList({
               onClick={() => setStatus(f.key)}
               className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-navy text-white shadow-sm"
                   : "bg-white text-slate-600 ring-1 ring-slate-200"
               }`}
             >

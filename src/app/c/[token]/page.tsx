@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { signPhotos } from "@/lib/photos";
 import { formatLocation } from "@/lib/location";
 import { STATUS_WEIGHT, type Status } from "@/lib/status";
-import { APP_NAME } from "@/lib/constants";
+import Logo from "@/components/Logo";
 import RefreshControl from "@/components/RefreshControl";
 import ContractorList, { type SnagRow } from "./ContractorList";
 
@@ -58,13 +58,13 @@ export default async function ContractorPage({
 
   return (
     <main className="min-h-dvh bg-slate-50 pb-10 text-slate-900">
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+      <header className="flex items-center justify-between bg-navy px-5 py-4 text-white">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {APP_NAME}
-          </p>
-          <h1 className="text-lg font-bold tracking-tight">{contractor.name}</h1>
-          <p className="text-sm text-slate-500">
+          <Logo className="text-sm text-slate-300" />
+          <h1 className="mt-0.5 text-lg font-bold tracking-tight">
+            {contractor.name}
+          </h1>
+          <p className="text-sm text-slate-300">
             {todo > 0
               ? `${todo} job${todo > 1 ? "s" : ""} to do`
               : "Nothing outstanding"}

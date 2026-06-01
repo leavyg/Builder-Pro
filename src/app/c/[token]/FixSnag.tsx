@@ -62,7 +62,7 @@ export default function FixSnag({
         onChange={(e) => setNote(e.target.value)}
         rows={2}
         placeholder="Add a note (optional)…"
-        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none transition-colors focus:border-blue-600"
+        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none transition-colors focus:border-navy"
       />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -71,7 +71,7 @@ export default function FixSnag({
         type="button"
         disabled={!enough || submitting}
         onClick={handleSubmit}
-        className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition-colors active:bg-blue-700 disabled:bg-slate-300"
+        className="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors active:bg-navy-light disabled:bg-slate-300"
       >
         {submitting
           ? "Sending…"

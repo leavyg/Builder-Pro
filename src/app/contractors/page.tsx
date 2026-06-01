@@ -24,28 +24,28 @@ export default async function ContractorsPage() {
             name="name"
             required
             placeholder="Name (e.g. Sean Murphy)"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-navy"
           />
           <input
             name="trade"
             placeholder="Trade (e.g. Electrician)"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-navy"
           />
           <input
             name="phone"
             type="tel"
             placeholder="Phone (for SMS / WhatsApp)"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-navy"
           />
           <input
             name="email"
             type="email"
             placeholder="Email"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-navy"
           />
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition-colors active:bg-blue-700"
+            className="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors active:bg-navy-light"
           >
             Add contractor
           </button>

@@ -24,7 +24,7 @@ export default function ReviewActions({ defectId }: { defectId: string }) {
           rows={3}
           autoFocus
           placeholder="e.g. Sealant still missing along the left edge"
-          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none transition-colors focus:border-blue-600"
+          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base outline-none transition-colors focus:border-navy"
         />
         <p className="text-xs text-slate-500">
           The contractor sees this, and their link reopens for another attempt.
