@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { compressImage } from "@/lib/image";
-import { CameraIcon } from "@/components/icons";
+import PhotoPicker from "@/components/PhotoPicker";
 
 type Contractor = { id: string; name: string; trade: string | null };
 type Zone = { id: string; label: string };
@@ -16,15 +15,13 @@ export default function NewDefectForm({
   zones: Zone[];
 }) {
   const router = useRouter();
-  const [photo, setPhoto] = useState<Blob | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<Blob[]>([]);
   const [contractorId, setContractorId] = useState<string>("");
   const [zoneId, setZoneId] = useState<string>("");
   const [description, setDescription] = useState("");
   const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   // Grab location quietly in the background — never blocks the flow.
   useEffect(() => {
@@ -36,15 +33,8 @@ export default function NewDefectForm({
     );
   }, []);
 
-  async function onPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const compressed = await compressImage(file);
-    setPhoto(compressed);
-    setPreview(URL.createObjectURL(compressed));
-  }
-
-  const canSend = photo && contractorId && description.trim() && !submitting;
+  const canSend =
+    photos.length > 0 && contractorId && description.trim() && !submitting;
 
   async function handleSend() {
     if (!canSend) return;
@@ -52,7 +42,7 @@ export default function NewDefectForm({
     setError(null);
 
     const fd = new FormData();
-    fd.append("photo", photo!, "defect.jpg");
+    photos.forEach((p, i) => fd.append("photos", p, `defect-${i}.jpg`));
     fd.append("contractor_id", contractorId);
     if (zoneId) fd.append("zone_id", zoneId);
     fd.append("description", description.trim());
@@ -74,35 +64,8 @@ export default function NewDefectForm({
 
   return (
     <div className="space-y-6 px-4 py-5 pb-28">
-      {/* 1. Photo */}
-      <div>
-        <input
-          ref={fileInput}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={onPhotoChange}
-          className="hidden"
-        />
-        {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={preview}
-            alt="Defect"
-            onClick={() => fileInput.current?.click()}
-            className="aspect-square w-full rounded-2xl object-cover"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => fileInput.current?.click()}
-            className="flex aspect-square w-full flex-col items-center justify-center rounded-2xl bg-slate-900 text-white transition-colors active:bg-slate-700"
-          >
-            <CameraIcon className="text-5xl" />
-            <span className="mt-2 text-lg font-semibold">Take photo</span>
-          </button>
-        )}
-      </div>
+      {/* 1. Photos */}
+      <PhotoPicker onChange={setPhotos} />
 
       {/* 2. Contractor */}
       <div>
@@ -159,7 +122,7 @@ export default function NewDefectForm({
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Tap the mic on your keyboard and say what’s wrong…"
-          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-slate-900"
+          className="w-full rounded-xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-blue-600"
         />
       </div>
 

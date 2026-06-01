@@ -25,30 +25,38 @@ export async function POST(req: Request) {
   }
 
   const form = await req.formData();
-  const photo = form.get("photo");
+  const photos = form.getAll("photos").filter((p): p is File => p instanceof File);
   const contractorId = String(form.get("contractor_id") ?? "");
   const zoneId = String(form.get("zone_id") ?? "") || null;
   const description = String(form.get("description") ?? "").trim();
   const latRaw = form.get("gps_lat");
   const lngRaw = form.get("gps_lng");
 
-  if (!(photo instanceof File) || !contractorId || !description) {
+  if (photos.length === 0 || !contractorId || !description) {
     return NextResponse.json(
-      { error: "Photo, contractor and description are required." },
+      { error: "At least one photo, a contractor and a description are required." },
       { status: 400 },
     );
   }
 
   const admin = createAdminClient();
 
-  // Upload the photo.
-  const path = `${site.id}/${crypto.randomUUID()}.jpg`;
-  const buffer = Buffer.from(await photo.arrayBuffer());
-  const { error: uploadErr } = await admin.storage
-    .from("defect-photos")
-    .upload(path, buffer, { contentType: photo.type || "image/jpeg" });
-  if (uploadErr) {
-    return NextResponse.json({ error: uploadErr.message }, { status: 500 });
+  // Upload all photos (parallel; result order matches input, so [0] is the cover).
+  let paths: string[];
+  try {
+    paths = await Promise.all(
+      photos.map(async (photo) => {
+        const path = `${site.id}/${crypto.randomUUID()}.jpg`;
+        const buffer = Buffer.from(await photo.arrayBuffer());
+        const { error } = await admin.storage
+          .from("defect-photos")
+          .upload(path, buffer, { contentType: photo.type || "image/jpeg" });
+        if (error) throw new Error(error.message);
+        return path;
+      }),
+    );
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }
 
   // Insert the defect (status defaults to 'open').
@@ -58,7 +66,8 @@ export async function POST(req: Request) {
       site_id: site.id,
       contractor_id: contractorId,
       zone_id: zoneId,
-      problem_photo_url: path,
+      problem_photo_url: paths[0],
+      problem_photo_urls: paths,
       description,
       gps_lat: latRaw ? Number(latRaw) : null,
       gps_lng: lngRaw ? Number(lngRaw) : null,

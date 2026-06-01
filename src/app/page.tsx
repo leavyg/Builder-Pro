@@ -16,7 +16,7 @@ export default async function Home() {
   const { data: defects } = await supabase
     .from("defects")
     .select(
-      "id,ref,description,status,problem_photo_url,created_at,zones(label),contractors(name)",
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,zones(label),contractors(name)",
     );
 
   const photoMap = await signPhotos(
@@ -39,6 +39,7 @@ export default async function Home() {
       thumb: photoMap[d.problem_photo_url],
       zone: one<{ label: string }>(d.zones)?.label,
       contractor: one<{ name: string }>(d.contractors)?.name,
+      photoCount: d.problem_photo_urls?.length ?? 1,
     }));
 
   return (

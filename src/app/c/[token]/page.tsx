@@ -26,7 +26,9 @@ export default async function ContractorPage({
 
   const { data: defects } = await admin
     .from("defects")
-    .select("id,ref,description,status,problem_photo_url,created_at,zones(label)")
+    .select(
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,zones(label)",
+    )
     .eq("contractor_id", contractor.id);
 
   const photoMap = await signPhotos(
@@ -48,6 +50,7 @@ export default async function ContractorPage({
       status: d.status as Status,
       thumb: photoMap[d.problem_photo_url],
       zone: one<{ label: string }>(d.zones)?.label,
+      photoCount: d.problem_photo_urls?.length ?? 1,
     }));
 
   const todo = rows.filter((r) => r.status === "open").length;

@@ -13,6 +13,7 @@ export type SnagRow = {
   status: Status;
   thumb?: string;
   zone?: string;
+  photoCount: number;
 };
 
 const FILTERS: { key: "all" | Status; label: string }[] = [
@@ -80,12 +81,19 @@ export default function ContractorList({
                   href={`/c/${token}/${r.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-colors active:bg-slate-50"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={r.thumb}
-                    alt=""
-                    className="h-16 w-16 shrink-0 rounded-xl bg-slate-100 object-cover"
-                  />
+                  <div className="relative h-16 w-16 shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={r.thumb}
+                      alt=""
+                      className="h-16 w-16 rounded-xl bg-slate-100 object-cover"
+                    />
+                    {r.photoCount > 1 && (
+                      <span className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold text-white">
+                        +{r.photoCount - 1}
+                      </span>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">
                       <span className="text-slate-400">{formatRef(r.ref)}</span>{" "}

@@ -6,6 +6,7 @@ import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
 import { formatRef } from "@/lib/format";
 import { MapPinIcon } from "@/components/icons";
+import PhotoGrid from "@/components/PhotoGrid";
 import ReviewActions from "./ReviewActions";
 
 const EVENT_LABEL: Record<string, string> = {
@@ -35,7 +36,7 @@ export default async function DefectDetailPage({
   const { data: defect } = await supabase
     .from("defects")
     .select(
-      "id,ref,description,status,problem_photo_url,fixed_photo_url,gps_lat,gps_lng,created_at,zones(label),contractors(name,trade)",
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,gps_lat,gps_lng,created_at,zones(label),contractors(name,trade)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -48,9 +49,22 @@ export default async function DefectDetailPage({
     .eq("defect_id", id)
     .order("created_at");
 
-  const photoMap = await signPhotos(
-    [defect.problem_photo_url, defect.fixed_photo_url].filter(Boolean) as string[],
-  );
+  const problemPaths = (
+    defect.problem_photo_urls?.length
+      ? defect.problem_photo_urls
+      : [defect.problem_photo_url]
+  ).filter(Boolean) as string[];
+  const fixPaths = (
+    defect.fixed_photo_urls?.length
+      ? defect.fixed_photo_urls
+      : defect.fixed_photo_url
+        ? [defect.fixed_photo_url]
+        : []
+  ).filter(Boolean) as string[];
+
+  const photoMap = await signPhotos([...problemPaths, ...fixPaths]);
+  const problemUrls = problemPaths.map((p) => photoMap[p]).filter(Boolean);
+  const fixUrls = fixPaths.map((p) => photoMap[p]).filter(Boolean);
 
   const s = STATUS[defect.status as Status];
   const contractor = one<{ name: string; trade: string | null }>(defect.contractors);
@@ -96,29 +110,21 @@ export default async function DefectDetailPage({
           <p>Raised {fmt(defect.created_at)}</p>
         </div>
 
-        {/* Problem photo */}
+        {/* Problem photos */}
         <div>
-          <p className="mb-1 text-sm font-semibold text-slate-600">The problem</p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photoMap[defect.problem_photo_url]}
-            alt="Defect"
-            className="w-full rounded-2xl object-cover"
-          />
+          <p className="mb-1 text-sm font-semibold text-slate-600">
+            The problem{problemUrls.length > 1 ? ` (${problemUrls.length})` : ""}
+          </p>
+          <PhotoGrid urls={problemUrls} />
         </div>
 
-        {/* Fix photo + approve/reject (appears once the contractor submits) */}
-        {defect.fixed_photo_url && (
+        {/* Fix photos + approve/reject (appears once the contractor submits) */}
+        {fixUrls.length > 0 && (
           <div>
             <p className="mb-1 text-sm font-semibold text-slate-600">
-              Contractor’s fix
+              Contractor’s fix{fixUrls.length > 1 ? ` (${fixUrls.length})` : ""}
             </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photoMap[defect.fixed_photo_url]}
-              alt="Fix"
-              className="w-full rounded-2xl object-cover"
-            />
+            <PhotoGrid urls={fixUrls} />
           </div>
         )}
 

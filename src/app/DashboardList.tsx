@@ -14,6 +14,7 @@ export type DefectRow = {
   thumb?: string;
   zone?: string;
   contractor?: string;
+  photoCount: number;
 };
 
 const FILTERS: { key: "all" | Status; label: string }[] = [
@@ -102,12 +103,19 @@ export default function DashboardList({ defects }: { defects: DefectRow[] }) {
                   href={`/defect/${d.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-colors active:bg-slate-50"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={d.thumb}
-                    alt=""
-                    className="h-16 w-16 shrink-0 rounded-xl bg-slate-100 object-cover"
-                  />
+                  <div className="relative h-16 w-16 shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={d.thumb}
+                      alt=""
+                      className="h-16 w-16 rounded-xl bg-slate-100 object-cover"
+                    />
+                    {d.photoCount > 1 && (
+                      <span className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold text-white">
+                        +{d.photoCount - 1}
+                      </span>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">
                       <span className="text-slate-400">{formatRef(d.ref)}</span>{" "}

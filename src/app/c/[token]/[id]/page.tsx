@@ -6,6 +6,7 @@ import { one } from "@/lib/rel";
 import { STATUS, type Status } from "@/lib/status";
 import { formatRef } from "@/lib/format";
 import { ChevronLeftIcon } from "@/components/icons";
+import PhotoGrid from "@/components/PhotoGrid";
 import FixSnag from "../FixSnag";
 
 const EVENT_LABEL: Record<string, string> = {
@@ -42,7 +43,7 @@ export default async function ContractorSnagPage({
   const { data: defect } = await admin
     .from("defects")
     .select(
-      "id,ref,description,status,contractor_id,problem_photo_url,fixed_photo_url,zones(label)",
+      "id,ref,description,status,contractor_id,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,zones(label)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -55,9 +56,23 @@ export default async function ContractorSnagPage({
     .eq("defect_id", id)
     .order("created_at");
 
-  const photoMap = await signPhotos(
-    [defect.problem_photo_url, defect.fixed_photo_url].filter(Boolean) as string[],
-  );
+  const problemPaths = (
+    defect.problem_photo_urls?.length
+      ? defect.problem_photo_urls
+      : [defect.problem_photo_url]
+  ).filter(Boolean) as string[];
+  const fixPaths = (
+    defect.fixed_photo_urls?.length
+      ? defect.fixed_photo_urls
+      : defect.fixed_photo_url
+        ? [defect.fixed_photo_url]
+        : []
+  ).filter(Boolean) as string[];
+
+  const photoMap = await signPhotos([...problemPaths, ...fixPaths]);
+  const problemUrls = problemPaths.map((p) => photoMap[p]).filter(Boolean);
+  const fixUrls = fixPaths.map((p) => photoMap[p]).filter(Boolean);
+
   const s = STATUS[defect.status as Status];
   const zone = one<{ label: string }>(defect.zones)?.label;
 
@@ -91,33 +106,29 @@ export default async function ContractorSnagPage({
         {zone && <p className="text-sm text-slate-500">Location: {zone}</p>}
 
         <div>
-          <p className="mb-1 text-sm font-semibold text-slate-600">The problem</p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photoMap[defect.problem_photo_url]}
-            alt="The problem"
-            className="w-full rounded-2xl object-cover"
-          />
+          <p className="mb-1 text-sm font-semibold text-slate-600">
+            The problem{problemUrls.length > 1 ? ` (${problemUrls.length})` : ""}
+          </p>
+          <PhotoGrid urls={problemUrls} />
         </div>
 
         {defect.status === "open" && (
           <div>
             <p className="mb-2 font-semibold">Mark it fixed</p>
-            <FixSnag contractorToken={token} defectId={defect.id} />
+            <FixSnag
+              contractorToken={token}
+              defectId={defect.id}
+              requiredCount={problemPaths.length}
+            />
           </div>
         )}
 
-        {defect.fixed_photo_url && (
+        {fixUrls.length > 0 && (
           <div>
             <p className="mb-1 text-sm font-semibold text-slate-600">
-              Your submitted fix
+              Your submitted fix{fixUrls.length > 1 ? ` (${fixUrls.length})` : ""}
             </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photoMap[defect.fixed_photo_url]}
-              alt="Your fix"
-              className="w-full rounded-2xl object-cover"
-            />
+            <PhotoGrid urls={fixUrls} />
           </div>
         )}
 
