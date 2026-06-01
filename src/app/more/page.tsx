@@ -27,6 +27,7 @@ export default function MorePage() {
       <section className="space-y-2 px-4 py-5">
         <Row href="/contractors" label="Contractors" />
         <Row href="/terraces" label="Terraces & houses" />
+        <Row href="/export" label="Export records" />
         <LogoutButton />
       </section>
 

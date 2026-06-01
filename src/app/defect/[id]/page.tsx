@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import { createClient } from "@/lib/supabase/server";
@@ -15,6 +16,8 @@ const EVENT_LABEL: Record<string, string> = {
   fixed_submitted: "Fix submitted by contractor",
   approved: "Approved",
   rejected: "Sent back to contractor",
+  reassigned: "Reassigned to another contractor",
+  edited: "Defect edited",
 };
 
 function fmt(ts: string) {
@@ -76,16 +79,24 @@ export default async function DefectDetailPage({
       <AppHeader title="Defect" />
 
       <section className="space-y-5 px-4 py-5">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-slate-400">
-            {formatRef(defect.ref)}
-          </span>
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${s.badge}`}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-slate-400">
+              {formatRef(defect.ref)}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium ${s.badge}`}
+            >
+              <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+              {s.label}
+            </span>
+          </div>
+          <Link
+            href={`/defect/${defect.id}/edit`}
+            className="text-sm font-medium text-navy active:text-navy-light"
           >
-            <span className={`h-2 w-2 rounded-full ${s.dot}`} />
-            {s.label}
-          </span>
+            Edit
+          </Link>
         </div>
 
         <p className="text-lg font-medium">{defect.description}</p>

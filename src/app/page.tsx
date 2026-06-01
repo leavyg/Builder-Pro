@@ -6,6 +6,7 @@ import { formatLocation } from "@/lib/location";
 import Logo from "@/components/Logo";
 import RefreshControl from "@/components/RefreshControl";
 import BottomTabBar from "@/components/BottomTabBar";
+import PendingUploads from "@/components/PendingUploads";
 import DashboardList, { type DefectRow } from "./DashboardList";
 
 export default async function Home() {
@@ -54,6 +55,7 @@ export default async function Home() {
       </header>
 
       <section className="px-4 pt-4">
+        <PendingUploads />
         <DashboardList defects={rows} />
       </section>
 

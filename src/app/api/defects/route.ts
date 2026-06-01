@@ -29,6 +29,7 @@ export async function POST(req: Request) {
   const contractorId = String(form.get("contractor_id") ?? "");
   const addressId = String(form.get("address_id") ?? "") || null;
   const description = String(form.get("description") ?? "").trim();
+  const clientId = String(form.get("client_id") ?? "") || null;
   const latRaw = form.get("gps_lat");
   const lngRaw = form.get("gps_lng");
 
@@ -40,6 +41,16 @@ export async function POST(req: Request) {
   }
 
   const admin = createAdminClient();
+
+  // Idempotency: if this capture already uploaded (offline retry), don't dupe it.
+  if (clientId) {
+    const { data: existing } = await admin
+      .from("defects")
+      .select("id")
+      .eq("client_id", clientId)
+      .maybeSingle();
+    if (existing) return NextResponse.json({ id: existing.id });
+  }
 
   // Validate the chosen house belongs to this manager's site.
   const { data: address } = await admin
@@ -82,6 +93,7 @@ export async function POST(req: Request) {
       site_id: site.id,
       contractor_id: contractorId,
       address_id: addressId,
+      client_id: clientId,
       problem_photo_url: paths[0],
       problem_photo_urls: paths,
       description,

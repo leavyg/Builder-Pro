@@ -14,6 +14,8 @@ const EVENT_LABEL: Record<string, string> = {
   fixed_submitted: "You submitted a fix",
   approved: "Approved by site manager",
   rejected: "Sent back",
+  reassigned: "Assigned to you",
+  edited: "Updated by site manager",
 };
 
 function fmt(ts: string) {
