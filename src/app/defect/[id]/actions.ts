@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getBaseUrl } from "@/lib/url";
 import { formatRef } from "@/lib/format";
 import { emailSentBack } from "@/lib/email";
+import { smsSentBack } from "@/lib/sms";
 
 // Manager approves a submitted fix → defect closed (green).
 export async function approveDefect(formData: FormData) {
@@ -49,23 +50,30 @@ export async function rejectDefect(formData: FormData) {
   // Notify the contractor their link has reopened (non-blocking).
   const { data: defect } = await admin
     .from("defects")
-    .select("ref,description,contractors(name,email,response_token)")
+    .select("ref,description,contractors(name,email,phone,response_token)")
     .eq("id", id)
     .maybeSingle();
   const c = defect
     ? (Array.isArray(defect.contractors) ? defect.contractors[0] : defect.contractors)
     : null;
-  if (c?.email) {
+  if (c) {
     const baseUrl = await getBaseUrl();
+    const link = `${baseUrl}/c/${c.response_token}`;
+    const ref = formatRef(defect!.ref);
     after(async () => {
-      await emailSentBack({
-        to: c.email,
-        contractorName: c.name,
-        ref: formatRef(defect!.ref),
-        description: defect!.description,
-        reason: note || undefined,
-        link: `${baseUrl}/c/${c.response_token}`,
-      });
+      if (c.email) {
+        await emailSentBack({
+          to: c.email,
+          contractorName: c.name,
+          ref,
+          description: defect!.description,
+          reason: note || undefined,
+          link,
+        });
+      }
+      if (c.phone) {
+        await smsSentBack({ to: c.phone, ref, reason: note || undefined, link });
+      }
     });
   }
 

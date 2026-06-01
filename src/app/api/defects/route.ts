@@ -5,6 +5,7 @@ import { getSite } from "@/lib/site";
 import { getBaseUrl } from "@/lib/url";
 import { formatRef } from "@/lib/format";
 import { emailNewDefect } from "@/lib/email";
+import { smsNewDefect } from "@/lib/sms";
 
 // Creates a new defect: uploads the photo to Storage and inserts the defect +
 // its first audit event. Auth is checked via the manager's session; the upload
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
   // Notify the assigned contractor by email (after the response — non-blocking).
   const { data: contractor } = await admin
     .from("contractors")
-    .select("name,email,response_token")
+    .select("name,email,phone,response_token")
     .eq("id", contractorId)
     .maybeSingle();
 
@@ -91,17 +92,24 @@ export async function POST(req: Request) {
     zoneLabel = z?.label;
   }
 
-  if (contractor?.email) {
+  if (contractor) {
     const baseUrl = await getBaseUrl();
+    const link = `${baseUrl}/c/${contractor.response_token}`;
+    const ref = formatRef(defect.ref);
     after(async () => {
-      await emailNewDefect({
-        to: contractor.email!,
-        contractorName: contractor.name,
-        ref: formatRef(defect.ref),
-        description,
-        zone: zoneLabel,
-        link: `${baseUrl}/c/${contractor.response_token}`,
-      });
+      if (contractor.email) {
+        await emailNewDefect({
+          to: contractor.email,
+          contractorName: contractor.name,
+          ref,
+          description,
+          zone: zoneLabel,
+          link,
+        });
+      }
+      if (contractor.phone) {
+        await smsNewDefect({ to: contractor.phone, ref, description, link });
+      }
     });
   }
 
