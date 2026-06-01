@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { signPhotos } from "@/lib/photos";
-import { one } from "@/lib/rel";
+import { formatLocation } from "@/lib/location";
 import { STATUS_WEIGHT, type Status } from "@/lib/status";
 import { APP_NAME } from "@/lib/constants";
 import RefreshControl from "@/components/RefreshControl";
@@ -27,7 +27,7 @@ export default async function ContractorPage({
   const { data: defects } = await admin
     .from("defects")
     .select(
-      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,zones(label)",
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,addresses(label,terraces(name))",
     )
     .eq("contractor_id", contractor.id);
 
@@ -49,7 +49,7 @@ export default async function ContractorPage({
       description: d.description,
       status: d.status as Status,
       thumb: photoMap[d.problem_photo_url],
-      zone: one<{ label: string }>(d.zones)?.label,
+      zone: formatLocation(d.addresses) || undefined,
       photoCount: d.problem_photo_urls?.length ?? 1,
     }));
 

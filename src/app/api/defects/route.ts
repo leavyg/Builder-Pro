@@ -27,19 +27,35 @@ export async function POST(req: Request) {
   const form = await req.formData();
   const photos = form.getAll("photos").filter((p): p is File => p instanceof File);
   const contractorId = String(form.get("contractor_id") ?? "");
-  const zoneId = String(form.get("zone_id") ?? "") || null;
+  const addressId = String(form.get("address_id") ?? "") || null;
   const description = String(form.get("description") ?? "").trim();
   const latRaw = form.get("gps_lat");
   const lngRaw = form.get("gps_lng");
 
-  if (photos.length === 0 || !contractorId || !description) {
+  if (photos.length === 0 || !contractorId || !description || !addressId) {
     return NextResponse.json(
-      { error: "At least one photo, a contractor and a description are required." },
+      { error: "Photo, contractor, location and description are all required." },
       { status: 400 },
     );
   }
 
   const admin = createAdminClient();
+
+  // Validate the chosen house belongs to this manager's site.
+  const { data: address } = await admin
+    .from("addresses")
+    .select("id,label,terraces(name,site_id)")
+    .eq("id", addressId)
+    .maybeSingle();
+  const terrace = address
+    ? Array.isArray(address.terraces)
+      ? address.terraces[0]
+      : address.terraces
+    : null;
+  if (!address || !terrace || terrace.site_id !== site.id) {
+    return NextResponse.json({ error: "Invalid location." }, { status: 400 });
+  }
+  const locationStr = `${terrace.name} · ${address.label}`;
 
   // Upload all photos (parallel; result order matches input, so [0] is the cover).
   let paths: string[];
@@ -65,7 +81,7 @@ export async function POST(req: Request) {
     .insert({
       site_id: site.id,
       contractor_id: contractorId,
-      zone_id: zoneId,
+      address_id: addressId,
       problem_photo_url: paths[0],
       problem_photo_urls: paths,
       description,
@@ -91,16 +107,6 @@ export async function POST(req: Request) {
     .eq("id", contractorId)
     .maybeSingle();
 
-  let zoneLabel: string | undefined;
-  if (zoneId) {
-    const { data: z } = await admin
-      .from("zones")
-      .select("label")
-      .eq("id", zoneId)
-      .maybeSingle();
-    zoneLabel = z?.label;
-  }
-
   if (contractor) {
     const baseUrl = await getBaseUrl();
     const link = `${baseUrl}/c/${contractor.response_token}`;
@@ -112,7 +118,7 @@ export async function POST(req: Request) {
           contractorName: contractor.name,
           ref,
           description,
-          zone: zoneLabel,
+          zone: locationStr,
           link,
         });
       }

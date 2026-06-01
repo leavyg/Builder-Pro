@@ -5,6 +5,7 @@ import { STATUS, type Status } from "@/lib/status";
 import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
 import { formatRef } from "@/lib/format";
+import { formatLocation } from "@/lib/location";
 import { MapPinIcon } from "@/components/icons";
 import PhotoGrid from "@/components/PhotoGrid";
 import ReviewActions from "./ReviewActions";
@@ -36,7 +37,7 @@ export default async function DefectDetailPage({
   const { data: defect } = await supabase
     .from("defects")
     .select(
-      "id,ref,description,status,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,gps_lat,gps_lng,created_at,zones(label),contractors(name,trade)",
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,gps_lat,gps_lng,created_at,addresses(label,terraces(name)),contractors(name,trade)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -68,7 +69,7 @@ export default async function DefectDetailPage({
 
   const s = STATUS[defect.status as Status];
   const contractor = one<{ name: string; trade: string | null }>(defect.contractors);
-  const zone = one<{ label: string }>(defect.zones)?.label;
+  const zone = formatLocation(defect.addresses);
 
   return (
     <main className="min-h-dvh bg-slate-50 text-slate-900">

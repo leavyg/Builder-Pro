@@ -1,29 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import PhotoPicker from "@/components/PhotoPicker";
 
 type Contractor = { id: string; name: string; trade: string | null };
-type Zone = { id: string; label: string };
+type Address = { id: string; label: string };
+type Terrace = { id: string; name: string; addresses: Address[] };
 
 export default function NewDefectForm({
   contractors,
-  zones,
+  terraces,
 }: {
   contractors: Contractor[];
-  zones: Zone[];
+  terraces: Terrace[];
 }) {
   const router = useRouter();
   const [photos, setPhotos] = useState<Blob[]>([]);
-  const [contractorId, setContractorId] = useState<string>("");
-  const [zoneId, setZoneId] = useState<string>("");
+  const [contractorId, setContractorId] = useState("");
+  const [terraceId, setTerraceId] = useState("");
+  const [terraceQuery, setTerraceQuery] = useState("");
+  const [addressId, setAddressId] = useState("");
   const [description, setDescription] = useState("");
   const [gps, setGps] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Grab location quietly in the background — never blocks the flow.
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -33,8 +35,39 @@ export default function NewDefectForm({
     );
   }, []);
 
+  const selectedTerrace = terraces.find((t) => t.id === terraceId);
+  const matches = useMemo(() => {
+    const q = terraceQuery.trim().toLowerCase();
+    if (!q) return [];
+    return terraces.filter((t) => t.name.toLowerCase().includes(q)).slice(0, 8);
+  }, [terraceQuery, terraces]);
+
+  const houses = useMemo(
+    () =>
+      (selectedTerrace?.addresses ?? [])
+        .slice()
+        .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true })),
+    [selectedTerrace],
+  );
+
+  function selectTerrace(t: Terrace) {
+    setTerraceId(t.id);
+    setTerraceQuery(t.name);
+    setAddressId("");
+  }
+  function clearTerrace() {
+    setTerraceId("");
+    setTerraceQuery("");
+    setAddressId("");
+  }
+
   const canSend =
-    photos.length > 0 && contractorId && description.trim() && !submitting;
+    photos.length > 0 &&
+    contractorId &&
+    description.trim() &&
+    terraceId &&
+    addressId &&
+    !submitting;
 
   async function handleSend() {
     if (!canSend) return;
@@ -44,7 +77,7 @@ export default function NewDefectForm({
     const fd = new FormData();
     photos.forEach((p, i) => fd.append("photos", p, `defect-${i}.jpg`));
     fd.append("contractor_id", contractorId);
-    if (zoneId) fd.append("zone_id", zoneId);
+    fd.append("address_id", addressId);
     fd.append("description", description.trim());
     if (gps) {
       fd.append("gps_lat", String(gps.lat));
@@ -89,30 +122,69 @@ export default function NewDefectForm({
         </div>
       </div>
 
-      {/* 3. Zone (optional) */}
-      {zones.length > 0 && (
-        <div>
-          <p className="mb-2 font-semibold">
-            Location <span className="font-normal text-slate-400">(optional)</span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {zones.map((z) => (
-              <button
-                key={z.id}
-                type="button"
-                onClick={() => setZoneId(zoneId === z.id ? "" : z.id)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  zoneId === z.id
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-slate-700 ring-1 ring-slate-300"
-                }`}
-              >
-                {z.label}
-              </button>
-            ))}
+      {/* 3. Location — terrace typeahead + house select (both required) */}
+      <div>
+        <p className="mb-2 font-semibold">Location</p>
+        <div className="grid grid-cols-2 gap-2">
+          {/* Terrace */}
+          <div className="relative">
+            {selectedTerrace ? (
+              <div className="flex items-center justify-between rounded-xl border border-blue-600 px-3 py-3">
+                <span className="font-medium">{selectedTerrace.name}</span>
+                <button
+                  type="button"
+                  onClick={clearTerrace}
+                  aria-label="Change terrace"
+                  className="text-lg leading-none text-slate-400"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  value={terraceQuery}
+                  onChange={(e) => setTerraceQuery(e.target.value)}
+                  placeholder="Terrace (e.g. T41)"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-blue-600"
+                />
+                {matches.length > 0 && (
+                  <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-slate-200 bg-white shadow-lg">
+                    {matches.map((t) => (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          onClick={() => selectTerrace(t)}
+                          className="block w-full px-3 py-2.5 text-left font-medium active:bg-slate-100"
+                        >
+                          {t.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
           </div>
+
+          {/* House */}
+          <select
+            value={addressId}
+            onChange={(e) => setAddressId(e.target.value)}
+            disabled={!selectedTerrace}
+            className="w-full rounded-xl border border-slate-300 px-3 py-3 text-base outline-none transition-colors focus:border-blue-600 disabled:bg-slate-100 disabled:text-slate-400"
+          >
+            <option value="">
+              {selectedTerrace ? "Choose house…" : "Pick terrace first"}
+            </option>
+            {houses.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.label}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+      </div>
 
       {/* 4. Description */}
       <div>

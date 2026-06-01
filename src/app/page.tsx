@@ -4,6 +4,7 @@ import { APP_NAME } from "@/lib/constants";
 import { STATUS_WEIGHT, type Status } from "@/lib/status";
 import { signPhotos } from "@/lib/photos";
 import { one } from "@/lib/rel";
+import { formatLocation } from "@/lib/location";
 import { PlusIcon } from "@/components/icons";
 import LogoutButton from "@/components/LogoutButton";
 import RefreshControl from "@/components/RefreshControl";
@@ -16,7 +17,7 @@ export default async function Home() {
   const { data: defects } = await supabase
     .from("defects")
     .select(
-      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,zones(label),contractors(name)",
+      "id,ref,description,status,problem_photo_url,problem_photo_urls,created_at,addresses(label,terraces(name)),contractors(name)",
     );
 
   const photoMap = await signPhotos(
@@ -37,7 +38,7 @@ export default async function Home() {
       description: d.description,
       status: d.status as Status,
       thumb: photoMap[d.problem_photo_url],
-      zone: one<{ label: string }>(d.zones)?.label,
+      zone: formatLocation(d.addresses) || undefined,
       contractor: one<{ name: string }>(d.contractors)?.name,
       photoCount: d.problem_photo_urls?.length ?? 1,
     }));
@@ -73,8 +74,8 @@ export default async function Home() {
         <Link href="/contractors" className="transition-colors active:text-slate-900">
           Contractors
         </Link>
-        <Link href="/zones" className="transition-colors active:text-slate-900">
-          Zones
+        <Link href="/terraces" className="transition-colors active:text-slate-900">
+          Terraces
         </Link>
       </div>
     </main>

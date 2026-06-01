@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { signPhotos } from "@/lib/photos";
-import { one } from "@/lib/rel";
+import { formatLocation } from "@/lib/location";
 import { STATUS, type Status } from "@/lib/status";
 import { formatRef } from "@/lib/format";
 import { ChevronLeftIcon } from "@/components/icons";
@@ -43,7 +43,7 @@ export default async function ContractorSnagPage({
   const { data: defect } = await admin
     .from("defects")
     .select(
-      "id,ref,description,status,contractor_id,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,zones(label)",
+      "id,ref,description,status,contractor_id,problem_photo_url,problem_photo_urls,fixed_photo_url,fixed_photo_urls,addresses(label,terraces(name))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -74,7 +74,7 @@ export default async function ContractorSnagPage({
   const fixUrls = fixPaths.map((p) => photoMap[p]).filter(Boolean);
 
   const s = STATUS[defect.status as Status];
-  const zone = one<{ label: string }>(defect.zones)?.label;
+  const zone = formatLocation(defect.addresses);
 
   return (
     <main className="min-h-dvh bg-slate-50 text-slate-900">
