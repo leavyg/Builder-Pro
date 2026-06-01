@@ -18,14 +18,14 @@ export type DefectRow = {
 };
 
 const FILTERS: { key: "all" | Status; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "open", label: "Open" },
   { key: "fixed_pending", label: "Awaiting" },
+  { key: "open", label: "Open" },
   { key: "approved", label: "Approved" },
+  { key: "all", label: "All" },
 ];
 
 export default function DashboardList({ defects }: { defects: DefectRow[] }) {
-  const [status, setStatus] = useState<"all" | Status>("all");
+  const [status, setStatus] = useState<"all" | Status>("fixed_pending");
   const [contractor, setContractor] = useState<string>("all");
 
   const contractors = Array.from(

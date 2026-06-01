@@ -14,6 +14,7 @@ export type SnagRow = {
   thumb?: string;
   zone?: string;
   photoCount: number;
+  created: string;
 };
 
 const FILTERS: { key: "all" | Status; label: string }[] = [
@@ -22,6 +23,19 @@ const FILTERS: { key: "all" | Status; label: string }[] = [
   { key: "approved", label: "Done" },
   { key: "all", label: "All" },
 ];
+
+function dayLabel(d: Date): string {
+  const today = new Date();
+  const yest = new Date();
+  yest.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === yest.toDateString()) return "Yesterday";
+  return d.toLocaleDateString("en-IE", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
 
 export default function ContractorList({
   rows,
@@ -32,6 +46,58 @@ export default function ContractorList({
 }) {
   const [status, setStatus] = useState<"all" | Status>("open");
   const filtered = rows.filter((r) => status === "all" || r.status === status);
+
+  // Group the (newest-first) rows into day buckets.
+  const groups: { label: string; items: SnagRow[] }[] = [];
+  let lastKey = "";
+  for (const r of filtered) {
+    const d = new Date(r.created);
+    const key = d.toDateString();
+    if (key !== lastKey) {
+      groups.push({ label: dayLabel(d), items: [] });
+      lastKey = key;
+    }
+    groups[groups.length - 1].items.push(r);
+  }
+
+  function card(r: SnagRow) {
+    const s = STATUS[r.status];
+    return (
+      <li key={r.id}>
+        <Link
+          href={`/c/${token}/${r.id}`}
+          className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-colors active:bg-slate-50"
+        >
+          <div className="relative h-16 w-16 shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={r.thumb}
+              alt=""
+              className="h-16 w-16 rounded-xl bg-slate-100 object-cover"
+            />
+            {r.photoCount > 1 && (
+              <span className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold text-white">
+                +{r.photoCount - 1}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium">
+              <span className="text-slate-400">{formatRef(r.ref)}</span> {r.description}
+            </p>
+            {r.zone && <p className="truncate text-sm text-slate-500">{r.zone}</p>}
+            <span
+              className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${s.badge}`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+              {s.label}
+            </span>
+          </div>
+          <ChevronRightIcon className="shrink-0 text-lg text-slate-300" />
+        </Link>
+      </li>
+    );
+  }
 
   return (
     <>
@@ -72,49 +138,16 @@ export default function ContractorList({
           {rows.length === 0 ? "No jobs assigned yet." : "Nothing here."}
         </div>
       ) : (
-        <ul className="space-y-2">
-          {filtered.map((r) => {
-            const s = STATUS[r.status];
-            return (
-              <li key={r.id}>
-                <Link
-                  href={`/c/${token}/${r.id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition-colors active:bg-slate-50"
-                >
-                  <div className="relative h-16 w-16 shrink-0">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={r.thumb}
-                      alt=""
-                      className="h-16 w-16 rounded-xl bg-slate-100 object-cover"
-                    />
-                    {r.photoCount > 1 && (
-                      <span className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold text-white">
-                        +{r.photoCount - 1}
-                      </span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">
-                      <span className="text-slate-400">{formatRef(r.ref)}</span>{" "}
-                      {r.description}
-                    </p>
-                    {r.zone && (
-                      <p className="truncate text-sm text-slate-500">{r.zone}</p>
-                    )}
-                    <span
-                      className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${s.badge}`}
-                    >
-                      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
-                      {s.label}
-                    </span>
-                  </div>
-                  <ChevronRightIcon className="shrink-0 text-lg text-slate-300" />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="space-y-5">
+          {groups.map((g, gi) => (
+            <div key={gi}>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                {g.label}
+              </p>
+              <ul className="space-y-2">{g.items.map(card)}</ul>
+            </div>
+          ))}
+        </div>
       )}
     </>
   );

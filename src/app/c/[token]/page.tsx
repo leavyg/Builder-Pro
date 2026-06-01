@@ -51,6 +51,7 @@ export default async function ContractorPage({
       thumb: photoMap[d.problem_photo_url],
       zone: formatLocation(d.addresses) || undefined,
       photoCount: d.problem_photo_urls?.length ?? 1,
+      created: d.created_at,
     }));
 
   const todo = rows.filter((r) => r.status === "open").length;

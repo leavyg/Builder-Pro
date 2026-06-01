@@ -39,6 +39,7 @@ export async function updateSession(request: NextRequest) {
     path === "/login" ||
     path.startsWith("/c/") || // contractor's per-contractor snag list (no login)
     path.startsWith("/api/fix") ||
+    path.startsWith("/preview") || // temporary design preview (no login)
     path.startsWith("/auth");
 
   if (!user && !isPublic) {
