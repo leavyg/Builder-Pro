@@ -17,10 +17,10 @@ export type SnagRow = {
 };
 
 const FILTERS: { key: "all" | Status; label: string }[] = [
-  { key: "all", label: "All" },
   { key: "open", label: "To do" },
   { key: "fixed_pending", label: "Awaiting" },
   { key: "approved", label: "Done" },
+  { key: "all", label: "All" },
 ];
 
 export default function ContractorList({
@@ -30,7 +30,7 @@ export default function ContractorList({
   rows: SnagRow[];
   token: string;
 }) {
-  const [status, setStatus] = useState<"all" | Status>("all");
+  const [status, setStatus] = useState<"all" | Status>("open");
   const filtered = rows.filter((r) => status === "all" || r.status === status);
 
   return (
